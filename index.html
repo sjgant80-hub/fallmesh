@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FallMesh · Sovereign Mesh Protocol</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230a0a12'/><circle cx='30' cy='35' r='8' fill='none' stroke='%2300d4aa' stroke-width='2'/><circle cx='70' cy='35' r='8' fill='none' stroke='%2300d4aa' stroke-width='2'/><circle cx='50' cy='70' r='8' fill='none' stroke='%2300d4aa' stroke-width='2'/><line x1='37' y1='38' x2='63' y2='38' stroke='%2300d4aa' stroke-width='1.5' opacity='.6'/><line x1='34' y1='42' x2='46' y2='64' stroke='%2300d4aa' stroke-width='1.5' opacity='.6'/><line x1='66' y1='42' x2='54' y2='64' stroke='%2300d4aa' stroke-width='1.5' opacity='.6'/></svg>">
+<style>
+:root{
+--bg:#0a0a12;--sf:#111120;--s2:#181830;--s3:#222240;
+--bd:#2a2a4a;--bh:#3a3a5a;
+--tx:#c8c8e0;--dm:#6a6a8a;--br:#e0e0f0;--wh:#f4f4ff;
+--gn:#00d4aa;--gd:rgba(0,212,170,.08);--gl:rgba(0,212,170,.15);
+--bl:#3a8aff;--bld:rgba(58,138,255,.08);
+--am:#ffaa33;--ad:rgba(255,170,51,.08);
+--rd:#ff4466;--rdd:rgba(255,68,102,.06);
+--cy:#00ccee;--cyd:rgba(0,204,238,.08);
+--sr:'Georgia','Times New Roman',serif;
+--ss:'Segoe UI','Helvetica Neue',Arial,sans-serif;
+--mn:'Consolas','Monaco','Courier New',monospace;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--ss);background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px;line-height:1.7;overflow-x:hidden}
+::selection{background:var(--gn);color:var(--bg)}
+a{color:var(--gn);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.hub{max-width:800px;margin:0 auto;padding:16px}
+
+/* Header */
+.hdr{padding:40px 0 24px;text-align:center;position:relative}
+.hdr::after{content:'';display:block;width:60px;height:2px;background:var(--gn);margin:16px auto 0;border-radius:1px}
+.hdr .tag{font-family:var(--mn);font-size:9px;color:var(--gn);letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px;display:block}
+.hdr h1{font-family:var(--sr);font-size:clamp(28px,5vw,40px);font-weight:400;color:var(--wh);letter-spacing:-.02em}
+.hdr h1 em{font-style:italic;color:var(--gn)}
+.hdr .sub{font-size:14px;color:var(--dm);margin-top:8px;font-family:var(--mn);font-size:11px}
+
+/* Canvas mesh */
+.mesh-wrap{position:relative;width:100%;aspect-ratio:16/10;background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin:20px 0}
+.mesh-wrap canvas{width:100%;height:100%;display:block}
+.mesh-legend{position:absolute;bottom:10px;left:10px;font-family:var(--mn);font-size:9px;color:var(--dm);display:flex;gap:12px;flex-wrap:wrap}
+.mesh-legend span{display:flex;align-items:center;gap:4px}
+.mesh-legend .dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.mesh-controls{position:absolute;top:10px;right:10px;display:flex;gap:4px}
+.mesh-controls button{padding:4px 10px;background:var(--s2);border:1px solid var(--bd);border-radius:4px;font-family:var(--mn);font-size:9px;color:var(--dm);cursor:pointer}
+.mesh-controls button:hover{border-color:var(--gn);color:var(--gn)}
+.mesh-controls button.active{background:var(--gd);border-color:var(--gn);color:var(--gn)}
+.mesh-stats{position:absolute;top:10px;left:10px;font-family:var(--mn);font-size:9px;color:var(--dm);line-height:1.8}
+.mesh-stats .val{color:var(--gn)}
+
+/* Section */
+.sec{padding:20px 0;border-bottom:1px solid var(--bd)}
+.sec-h{font-family:var(--mn);font-size:9px;color:var(--gn);letter-spacing:.12em;text-transform:uppercase;margin-bottom:12px}
+.sec h2{font-family:var(--sr);font-size:20px;color:var(--wh);margin-bottom:8px}
+.sec p{font-size:13px;color:var(--dm);line-height:1.8}
+
+/* Node cards */
+.nodes{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin:16px 0}
+.node{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:12px;cursor:pointer;transition:all .2s}
+.node:hover{border-color:var(--gn);transform:translateY(-2px)}
+.node.active{border-color:var(--gn);background:var(--gd)}
+.node .n-name{font-family:var(--mn);font-size:12px;font-weight:600;color:var(--br);margin-bottom:4px}
+.node .n-type{font-family:var(--mn);font-size:8px;color:var(--dm);text-transform:uppercase;letter-spacing:.08em}
+.node .n-status{display:flex;align-items:center;gap:4px;margin-top:6px;font-family:var(--mn);font-size:9px}
+.node .n-status .pulse{width:6px;height:6px;border-radius:50%;animation:pulse 2s infinite}
+.node .n-status.online .pulse{background:var(--gn)}
+.node .n-status.online{color:var(--gn)}
+.node .n-status.pending .pulse{background:var(--am)}
+.node .n-status.pending{color:var(--am)}
+.node .n-feeds{font-family:var(--mn);font-size:8px;color:var(--dm);margin-top:6px;line-height:1.6}
+
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* Protocol spec */
+.spec{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:16px;margin:12px 0;font-family:var(--mn);font-size:11px;line-height:1.8;color:var(--dm);overflow-x:auto}
+.spec .kw{color:var(--gn)}.spec .str{color:var(--am)}.spec .num{color:var(--cy)}.spec .cm{color:#4a4a6a;font-style:italic}
+
+/* Data flow table */
+.flows{width:100%;border-collapse:collapse;margin:12px 0}
+.flows th{font-family:var(--mn);font-size:9px;color:var(--gn);letter-spacing:.06em;text-transform:uppercase;text-align:left;padding:8px;border-bottom:1px solid var(--bd)}
+.flows td{font-family:var(--mn);font-size:11px;color:var(--dm);padding:8px;border-bottom:1px solid rgba(42,42,74,.4)}
+.flows tr:hover td{color:var(--br);background:var(--gd)}
+.flows .arrow{color:var(--gn)}
+
+/* Settings */
+.cfg{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:16px;margin:12px 0}
+.cfg h3{font-family:var(--mn);font-size:9px;color:var(--gn);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+.cfg-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.cfg-row input,.cfg-row select{padding:8px;background:var(--sf);border:1px solid var(--bd);border-radius:6px;font-family:var(--mn);font-size:11px;color:var(--br)}
+.cfg-row input{flex:1;min-width:140px}
+.cfg-row input:focus,.cfg-row select:focus{outline:none;border-color:var(--gn)}
+.btn{padding:8px 16px;border:none;border-radius:6px;font-family:var(--mn);font-size:11px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-p{background:var(--gn);color:var(--bg)}.btn-p:hover{background:#00e0b0}
+.btn-s{background:transparent;border:1px solid var(--bd);color:var(--dm)}.btn-s:hover{border-color:var(--gn);color:var(--gn)}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;margin:16px 0 12px;border-bottom:1px solid var(--bd);padding-bottom:8px}
+.tab{padding:6px 14px;font-family:var(--mn);font-size:10px;color:var(--dm);cursor:pointer;border-radius:4px 4px 0 0;transition:all .2s}
+.tab:hover{color:var(--br)}
+.tab.on{color:var(--gn);background:var(--gd);border-bottom:2px solid var(--gn)}
+.tab-content{display:none}.tab-content.on{display:block}
+
+/* Mesh health */
+.health{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:12px 0}
+.h-card{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:12px;text-align:center}
+.h-card .h-val{font-family:var(--mn);font-size:24px;font-weight:600;color:var(--gn)}
+.h-card .h-label{font-family:var(--mn);font-size:9px;color:var(--dm);letter-spacing:.06em;text-transform:uppercase;margin-top:4px}
+
+/* Footer */
+.ftr{text-align:center;padding:24px 0;border-top:1px solid var(--bd);margin-top:24px}
+.ftr p{font-family:var(--mn);font-size:7px;color:var(--dm);line-height:2.2}
+
+/* Responsive */
+@media(max-width:600px){
+.hub{padding:12px}
+.nodes{grid-template-columns:1fr}
+.health{grid-template-columns:repeat(2,1fr)}
+.mesh-wrap{aspect-ratio:4/3}
+}
+</style>
+</head>
+<body>
+
+<div class="hub">
+
+<div class="hdr">
+<span class="tag">◊·κ=1 · sovereign mesh protocol</span>
+<h1>Fall<em>Mesh</em></h1>
+<p class="sub">connecting sovereign tools · zero servers · your keys · your mesh</p>
+</div>
+
+<!-- LIVE MESH VISUALIZATION -->
+<div class="mesh-wrap">
+<canvas id="meshCanvas"></canvas>
+<div class="mesh-stats" id="meshStats">
+<div>nodes: <span class="val" id="statNodes">0</span></div>
+<div>edges: <span class="val" id="statEdges">0</span></div>
+<div>flows: <span class="val" id="statFlows">0/s</span></div>
+</div>
+<div class="mesh-controls">
+<button id="btnForce" class="active" onclick="setLayout('force')">force</button>
+<button id="btnCircle" onclick="setLayout('circle')">circle</button>
+<button id="btnPause" onclick="togglePause()">pause</button>
+</div>
+<div class="mesh-legend">
+<span><span class="dot" style="background:var(--gn)"></span> hub</span>
+<span><span class="dot" style="background:var(--bl)"></span> product</span>
+<span><span class="dot" style="background:var(--cy)"></span> agent pool</span>
+<span><span class="dot" style="background:var(--am)"></span> orchestrator</span>
+</div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+<div class="tab on" data-tab="topology" onclick="switchTab(this)">Topology</div>
+<div class="tab" data-tab="protocol" onclick="switchTab(this)">Protocol</div>
+<div class="tab" data-tab="flows" onclick="switchTab(this)">Data Flows</div>
+<div class="tab" data-tab="health" onclick="switchTab(this)">Health</div>
+<div class="tab" data-tab="config" onclick="switchTab(this)">Config</div>
+</div>
+
+<!-- TAB: TOPOLOGY -->
+<div class="tab-content on" id="tab-topology">
+<div class="sec">
+<div class="sec-h">mesh nodes</div>
+<p>Every sovereign tool is a mesh node. Every node is a self-contained HTML file. They connect peer-to-peer through FallMesh protocol — no central server, no platform dependency, no subscription.</p>
+<div class="nodes" id="nodeGrid"></div>
+</div>
+</div>
+
+<!-- TAB: PROTOCOL -->
+<div class="tab-content" id="tab-protocol">
+<div class="sec">
+<div class="sec-h">FallMesh Protocol v1</div>
+<h2>Sovereign Mesh Specification</h2>
+<p>Each mesh node advertises capabilities via a standard envelope. All communication is peer-to-peer with optional relay through GitHub Pages static endpoints.</p>
+
+<div class="spec" id="protocolSpec"></div>
+
+<div style="margin-top:16px">
+<div class="sec-h">design principles</div>
+<div class="spec">
+<span class="cm">// 1. SOVEREIGNTY</span>
+<br>Every node owns its data. No node can compel another.
+<br>Storage: IndexedDB (local). Keys: user-provided. APIs: user-selected.
+<br>
+<br><span class="cm">// 2. BRING YOUR OWN KEYS</span>
+<br>Each node stores API keys locally. Never transmitted to mesh peers.
+<br>AI cascade: Gemini (free) → DeepSeek (free) → Anthropic (paid)
+<br>
+<br><span class="cm">// 3. ZERO INFRASTRUCTURE COST</span>
+<br>Nodes: GitHub Pages static HTML (free forever)
+<br>Discovery: Static JSON manifest on each node's repo
+<br>Signaling: postMessage + BroadcastChannel (same-origin)
+<br>Cross-origin: URL fragment messaging + localStorage polling
+<br>
+<br><span class="cm">// 4. RECURSIVE MESH</span>
+<br>Every node can discover every other node via the hub manifest.
+<br>Hub (ai-nativesolutions) publishes mesh.json with all node URLs.
+<br>Each node publishes its own capabilities in meta tags.
+<br>
+<br><span class="cm">// 5. PRIME SPINE ADDRESSING</span>
+<br>Node IDs map to prime spine: {2,3,5,7,11,13,17,19,23,29,31}
+<br>Hub = 1 (unity). Products = primes. Agents = composites.
+<br>Address space: MACCubeFACE(127) compatible.
+</div>
+</div>
+</div>
+</div>
+
+<!-- TAB: DATA FLOWS -->
+<div class="tab-content" id="tab-flows">
+<div class="sec">
+<div class="sec-h">product mesh data flows</div>
+<p>Every product feeds every other product. The mesh is not a hierarchy — it's a fully connected graph where data flows bidirectionally.</p>
+<table class="flows" id="flowTable"></table>
+</div>
+</div>
+
+<!-- TAB: HEALTH -->
+<div class="tab-content" id="tab-health">
+<div class="sec">
+<div class="sec-h">mesh health dashboard</div>
+<div class="health" id="healthGrid"></div>
+<div style="margin-top:16px">
+<div class="sec-h">node availability</div>
+<div id="availGrid" class="nodes"></div>
+</div>
+</div>
+</div>
+
+<!-- TAB: CONFIG -->
+<div class="tab-content" id="tab-config">
+<div class="sec">
+<div class="sec-h">mesh configuration</div>
+<div class="cfg">
+<h3>node identity</h3>
+<div class="cfg-row">
+<input type="text" id="cfgName" placeholder="Your mesh name (e.g. simon-mesh-01)">
+<select id="cfgRole">
+<option value="operator">Operator</option>
+<option value="contributor">Contributor</option>
+<option value="observer">Observer</option>
+</select>
+</div>
+<div class="cfg-row">
+<input type="text" id="cfgDomain" placeholder="Domain SI identifier (optional)">
+</div>
+</div>
+<div class="cfg">
+<h3>api key vault</h3>
+<p style="font-size:11px;color:var(--dm);margin-bottom:8px">Keys stored locally in IndexedDB. Never transmitted.</p>
+<div class="cfg-row">
+<select id="cfgProvider">
+<option value="gemini">Gemini (free)</option>
+<option value="deepseek">DeepSeek (free)</option>
+<option value="anthropic">Anthropic</option>
+</select>
+<input type="password" id="cfgKey" placeholder="Paste API key">
+<button class="btn btn-p" onclick="saveKey()">Save</button>
+</div>
+<div id="keyStatus" style="font-family:var(--mn);font-size:9px;color:var(--dm);margin-top:4px"></div>
+</div>
+<div class="cfg">
+<h3>mesh preferences</h3>
+<div class="cfg-row">
+<select id="cfgRefresh">
+<option value="30">Refresh: 30s</option>
+<option value="60" selected>Refresh: 60s</option>
+<option value="300">Refresh: 5m</option>
+</select>
+<select id="cfgLayout">
+<option value="force">Layout: Force</option>
+<option value="circle">Layout: Circle</option>
+</select>
+<button class="btn btn-s" onclick="saveCfg()">Save Config</button>
+</div>
+</div>
+<div class="cfg">
+<h3>export / import</h3>
+<div class="cfg-row">
+<button class="btn btn-s" onclick="exportMesh()">Export Mesh State</button>
+<button class="btn btn-s" onclick="importMesh()">Import Mesh State</button>
+<button class="btn btn-s" onclick="resetMesh()">Reset All</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="ftr">
+<p>FallMesh · Sovereign Mesh Protocol · Zero Servers · Your Keys · Your Mesh</p>
+<p>Connecting Sovereign Tools · Prime Spine Addressing · MACCubeFACE(127) Compatible</p>
+<p>Built by <a href="https://fall127agents.github.io/ai-nativesolutions/" target="_blank" style="color:inherit;text-decoration:underline">AI Native Solutions</a> · ◊·κ=1</p>
+</div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// FallMesh · Sovereign Mesh Protocol
+// Connects all Fall sovereign tools
+// Built by AI Native Solutions
+// ═══════════════════════════════════════════════
+
+// ═══ MESH NODE DEFINITIONS ═══
+const MESH_NODES = [
+  { id:'hub', name:'AI Native Solutions', type:'hub', prime:1, color:'#00d4aa',
+    url:'https://fall127agents.github.io/ai-nativesolutions/',
+    desc:'Central hub. Showcases all products. AI concierge qualifies visitors.',
+    feeds:['fallcrm','fallcall','falllearn','fallgrade','fallconsensus','fallsignal','fallforensics','oracleengine','sididy'],
+    fedBy:['fallcall','fallcrm','falllearn','fallgrade'] },
+
+  { id:'fallcall', name:'FallCall', type:'product', prime:2, color:'#3a8aff',
+    url:'https://fall127agents.github.io/FallCall/',
+    desc:'7-layer sales conversation analysis. Psychology engine.',
+    feeds:['fallcrm','sididy'], fedBy:['hub'] },
+
+  { id:'fallcalllive', name:'FallCall Live', type:'product', prime:3, color:'#3a8aff',
+    url:'', desc:'Real-time coaching Chrome extension. Live sidebar overlay.',
+    feeds:['fallcall','fallcrm'], fedBy:['fallcall'] },
+
+  { id:'fallcrm', name:'FallCRM Elite', type:'product', prime:5, color:'#3a8aff',
+    url:'', desc:'Sovereign CRM. Client/lead data. All local.',
+    feeds:['sididy','fallcall'], fedBy:['hub','fallcall'] },
+
+  { id:'falllearn', name:'FallLearn', type:'product', prime:7, color:'#3a8aff',
+    url:'https://sjgant80-hub.github.io/falllearn/',
+    desc:'Context architecture course. 7 modules. Free forever.',
+    feeds:['hub','fallgrade'], fedBy:['hub','fallgrade'] },
+
+  { id:'fallgrade', name:'FallGrade', type:'product', prime:11, color:'#3a8aff',
+    url:'https://fall127agents.github.io/FallGrade/',
+    desc:'Portfolio assessment engine. Skills evaluation.',
+    feeds:['guild','sididy'], fedBy:['falllearn'] },
+
+  { id:'fallconsensus', name:'FallConsensus', type:'product', prime:13, color:'#3a8aff',
+    url:'https://fall127agents.github.io/FallConsensus/',
+    desc:'Governance engine. Multi-party decision making.',
+    feeds:['guild','all'], fedBy:['guild'] },
+
+  { id:'fallsignal', name:'FallSignal', type:'product', prime:17, color:'#3a8aff',
+    url:'https://fall127agents.github.io/FallSignal/',
+    desc:'Clean news. 18 manipulation techniques detected. Signal only.',
+    feeds:['marketing','fallwatch'], fedBy:['rss'] },
+
+  { id:'fallforensics', name:'FallForensics', type:'product', prime:19, color:'#3a8aff',
+    url:'https://fall127agents.github.io/FallForensics/',
+    desc:'Political analysis. Deep context. Forensic accuracy.',
+    feeds:['fallsignal','sididy'], fedBy:['data'] },
+
+  { id:'oracleengine', name:'OracleEngine', type:'product', prime:23, color:'#3a8aff',
+    url:'https://fall127agents.github.io/OracleEngine/',
+    desc:'Pattern recognition. Torus projection on any data.',
+    feeds:['all'], fedBy:['bloom'] },
+
+  { id:'fallwatch', name:'FallWatch', type:'product', prime:29, color:'#3a8aff',
+    url:'', desc:'127-agent market intelligence. Free APIs. Hedge fund substrate.',
+    feeds:['finance','sididy'], fedBy:['market'] },
+
+  { id:'fall127', name:'Fall127', type:'product', prime:31, color:'#3a8aff',
+    url:'https://fall127agents.github.io/Fall127/',
+    desc:'Seed specification. The 127-agent architecture reference.',
+    feeds:['all'], fedBy:['all'] },
+
+  { id:'ainative127', name:'AI Native 127', type:'agents', prime:37, color:'#00ccee',
+    url:'', desc:'Business workforce. 127 agents. External-facing. Revenue.',
+    feeds:['hub','all_products'], fedBy:['all_products'] },
+
+  { id:'sididy127', name:'Si-Didy 127', type:'agents', prime:41, color:'#00ccee',
+    url:'', desc:'Personal life OS. 127 agents. Internal-facing. Patterns.',
+    feeds:['sididy'], fedBy:['all'] },
+
+  { id:'sididy', name:'Si-Didy', type:'orchestrator', prime:43, color:'#ffaa33',
+    url:'', desc:'THE HUB. Orchestrates both 127 pools. Personal > Business.',
+    feeds:['everything'], fedBy:['everything'] },
+
+  { id:'fallmesh', name:'FallMesh', type:'hub', prime:47, color:'#00d4aa',
+    url:'', desc:'This. The mesh protocol itself. Connects all nodes.',
+    feeds:['all'], fedBy:['all'] },
+];
+
+// ═══ DATA FLOWS ═══
+const DATA_FLOWS = [
+  { from:'hub', to:'fallcall', data:'Visitor conversations', direction:'both' },
+  { from:'hub', to:'fallcrm', data:'Qualified leads', direction:'out' },
+  { from:'fallcall', to:'fallcrm', data:'Call outcomes, client intel', direction:'out' },
+  { from:'fallcalllive', to:'fallcall', data:'Live call data stream', direction:'out' },
+  { from:'falllearn', to:'hub', data:'Course graduates → leads', direction:'out' },
+  { from:'falllearn', to:'fallgrade', data:'Skill assessments', direction:'both' },
+  { from:'fallgrade', to:'sididy', data:'Talent intelligence', direction:'out' },
+  { from:'fallsignal', to:'fallwatch', data:'News sentiment signals', direction:'out' },
+  { from:'fallforensics', to:'sididy', data:'Political context', direction:'out' },
+  { from:'oracleengine', to:'all', data:'Torus projections', direction:'out' },
+  { from:'fallwatch', to:'sididy', data:'Market intelligence', direction:'out' },
+  { from:'fallconsensus', to:'all', data:'Governance decisions', direction:'out' },
+  { from:'ainative127', to:'hub', data:'Automated responses', direction:'both' },
+  { from:'sididy127', to:'sididy', data:'Life pattern analysis', direction:'both' },
+  { from:'sididy', to:'ainative127', data:'Orchestration commands', direction:'out' },
+  { from:'sididy', to:'sididy127', data:'Personal directives', direction:'out' },
+  { from:'fallmesh', to:'all', data:'Mesh topology, discovery', direction:'both' },
+];
+
+// ═══ MESH CANVAS ═══
+const canvas = document.getElementById('meshCanvas');
+const ctx = canvas.getContext('2d');
+let W, H, dpr;
+let layout = 'force';
+let paused = false;
+let frame = 0;
+let hoveredNode = null;
+
+// Physics
+const nodes = MESH_NODES.map((n,i) => ({
+  ...n,
+  x: 0, y: 0, vx: 0, vy: 0,
+  tx: 0, ty: 0,
+  r: n.type==='hub'?16 : n.type==='orchestrator'?14 : n.type==='agents'?12 : 10
+}));
+
+const edges = [];
+DATA_FLOWS.forEach(f => {
+  const a = nodes.find(n => n.id === f.from);
+  const b = nodes.find(n => n.id === f.to);
+  if(a && b && b.id !== 'all') edges.push({ a, b, data: f.data, dir: f.direction });
+});
+// Add implicit edges for 'all' targets
+DATA_FLOWS.filter(f => f.to === 'all').forEach(f => {
+  const a = nodes.find(n => n.id === f.from);
+  if(!a) return;
+  nodes.forEach(b => {
+    if(b.id !== a.id && !edges.find(e => e.a.id===a.id && e.b.id===b.id))
+      edges.push({ a, b, data: f.data, dir: f.direction, weak: true });
+  });
+});
+
+function resize() {
+  dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  W = rect.width; H = rect.height;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  initPositions();
+}
+
+function initPositions() {
+  if(layout === 'circle') {
+    const cx = W/2, cy = H/2, r = Math.min(W,H)*0.38;
+    nodes.forEach((n,i) => {
+      const a = (i/nodes.length)*Math.PI*2 - Math.PI/2;
+      n.tx = cx + Math.cos(a)*r;
+      n.ty = cy + Math.sin(a)*r;
+      if(!n.x) { n.x = n.tx; n.y = n.ty; }
+    });
+  } else {
+    const cx = W/2, cy = H/2;
+    nodes.forEach((n,i) => {
+      if(!n.x) {
+        n.x = cx + (Math.random()-.5)*W*0.6;
+        n.y = cy + (Math.random()-.5)*H*0.6;
+      }
+      n.tx = n.x; n.ty = n.y;
+    });
+  }
+}
+
+function forceStep() {
+  const cx = W/2, cy = H/2;
+  // Center gravity
+  nodes.forEach(n => {
+    n.vx += (cx - n.x) * 0.0005;
+    n.vy += (cy - n.y) * 0.0005;
+  });
+  // Repulsion
+  for(let i=0;i<nodes.length;i++) {
+    for(let j=i+1;j<nodes.length;j++) {
+      let dx = nodes[j].x - nodes[i].x;
+      let dy = nodes[j].y - nodes[i].y;
+      let d = Math.sqrt(dx*dx+dy*dy) || 1;
+      let f = 2000 / (d*d);
+      nodes[i].vx -= dx/d*f; nodes[i].vy -= dy/d*f;
+      nodes[j].vx += dx/d*f; nodes[j].vy += dy/d*f;
+    }
+  }
+  // Attraction along edges
+  edges.filter(e => !e.weak).forEach(e => {
+    let dx = e.b.x - e.a.x;
+    let dy = e.b.y - e.a.y;
+    let d = Math.sqrt(dx*dx+dy*dy) || 1;
+    let f = (d - 80) * 0.003;
+    e.a.vx += dx/d*f; e.a.vy += dy/d*f;
+    e.b.vx -= dx/d*f; e.b.vy -= dy/d*f;
+  });
+  // Damping + integrate
+  nodes.forEach(n => {
+    n.vx *= 0.85; n.vy *= 0.85;
+    n.x += n.vx; n.y += n.vy;
+    n.x = Math.max(n.r+4, Math.min(W-n.r-4, n.x));
+    n.y = Math.max(n.r+4, Math.min(H-n.r-4, n.y));
+  });
+}
+
+function circleStep() {
+  nodes.forEach(n => {
+    n.x += (n.tx - n.x) * 0.08;
+    n.y += (n.ty - n.y) * 0.08;
+  });
+}
+
+function drawEdge(e, alpha) {
+  const o = e.weak ? 0.04 : 0.12;
+  ctx.beginPath();
+  ctx.moveTo(e.a.x, e.a.y);
+  ctx.lineTo(e.b.x, e.b.y);
+  ctx.strokeStyle = `rgba(0,212,170,${o * alpha})`;
+  ctx.lineWidth = e.weak ? 0.5 : 1;
+  ctx.stroke();
+
+  // Animated particle along edge
+  if(!e.weak && !paused) {
+    const t = ((frame * 0.8 + e.a.prime * 37) % 200) / 200;
+    const px = e.a.x + (e.b.x - e.a.x) * t;
+    const py = e.a.y + (e.b.y - e.a.y) * t;
+    ctx.beginPath();
+    ctx.arc(px, py, 1.5, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(0,212,170,${0.6 * alpha})`;
+    ctx.fill();
+  }
+}
+
+function drawNode(n) {
+  const isHover = hoveredNode && hoveredNode.id === n.id;
+  const glow = isHover ? 0.4 : 0.15;
+
+  // Glow
+  const grad = ctx.createRadialGradient(n.x, n.y, n.r*0.5, n.x, n.y, n.r*2.5);
+  grad.addColorStop(0, n.color + Math.round(glow*255).toString(16).padStart(2,'0'));
+  grad.addColorStop(1, 'transparent');
+  ctx.beginPath();
+  ctx.arc(n.x, n.y, n.r*2.5, 0, Math.PI*2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Node circle
+  ctx.beginPath();
+  ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
+  ctx.fillStyle = n.color + '22';
+  ctx.strokeStyle = n.color;
+  ctx.lineWidth = isHover ? 2 : 1;
+  ctx.fill();
+  ctx.stroke();
+
+  // Pulse ring
+  if(n.type === 'hub' || n.type === 'orchestrator') {
+    const pr = n.r + 4 + Math.sin(frame * 0.03 + n.prime) * 3;
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, pr, 0, Math.PI*2);
+    ctx.strokeStyle = n.color + '33';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  }
+
+  // Label
+  ctx.font = `${isHover?'bold ':''}${isHover?10:8}px Consolas, monospace`;
+  ctx.fillStyle = isHover ? '#f4f4ff' : '#8a8aaa';
+  ctx.textAlign = 'center';
+  ctx.fillText(n.name, n.x, n.y + n.r + 12);
+
+  // Prime badge
+  if(isHover) {
+    ctx.font = '7px Consolas, monospace';
+    ctx.fillStyle = n.color + 'aa';
+    ctx.fillText(`p=${n.prime}`, n.x, n.y + n.r + 22);
+  }
+}
+
+function render() {
+  ctx.clearRect(0, 0, W, H);
+
+  // Background grid
+  ctx.strokeStyle = 'rgba(42,42,74,0.15)';
+  ctx.lineWidth = 0.5;
+  for(let x=0;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+
+  if(!paused) {
+    if(layout === 'force') forceStep();
+    else circleStep();
+  }
+
+  edges.forEach(e => drawEdge(e, 1));
+  nodes.forEach(n => drawNode(n));
+
+  frame++;
+
+  // Update stats
+  document.getElementById('statNodes').textContent = nodes.length;
+  document.getElementById('statEdges').textContent = edges.filter(e=>!e.weak).length;
+  document.getElementById('statFlows').textContent = Math.round(Math.sin(frame*0.02)*3+12) + '/s';
+
+  requestAnimationFrame(render);
+}
+
+// Mouse interaction
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
+  hoveredNode = null;
+  for(const n of nodes) {
+    const dx = mx - n.x, dy = my - n.y;
+    if(dx*dx+dy*dy < (n.r+8)*(n.r+8)) { hoveredNode = n; break; }
+  }
+  canvas.style.cursor = hoveredNode ? 'pointer' : 'default';
+});
+
+canvas.addEventListener('click', () => {
+  if(hoveredNode && hoveredNode.url) {
+    // Highlight node in grid
+    document.querySelectorAll('.node').forEach(el => el.classList.remove('active'));
+    const el = document.querySelector(`[data-id="${hoveredNode.id}"]`);
+    if(el) { el.classList.add('active'); el.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+  }
+});
+
+function setLayout(l) {
+  layout = l;
+  document.getElementById('btnForce').classList.toggle('active', l==='force');
+  document.getElementById('btnCircle').classList.toggle('active', l==='circle');
+  if(l === 'circle') initPositions();
+}
+
+function togglePause() {
+  paused = !paused;
+  document.getElementById('btnPause').textContent = paused ? 'play' : 'pause';
+  document.getElementById('btnPause').classList.toggle('active', paused);
+}
+
+// ═══ NODE GRID ═══
+function renderNodes() {
+  const grid = document.getElementById('nodeGrid');
+  grid.innerHTML = '';
+  MESH_NODES.forEach(n => {
+    const card = document.createElement('div');
+    card.className = 'node';
+    card.dataset.id = n.id;
+    const statusClass = n.url ? 'online' : 'pending';
+    const statusText = n.url ? 'deployed' : 'building';
+    card.innerHTML = `
+      <div class="n-name">${n.name}</div>
+      <div class="n-type">${n.type} · p=${n.prime}</div>
+      <div class="n-status ${statusClass}"><span class="pulse"></span>${statusText}</div>
+      <div class="n-feeds">${n.desc}</div>
+    `;
+    card.addEventListener('click', () => {
+      if(n.url) window.open(n.url, '_blank');
+    });
+    grid.appendChild(card);
+  });
+}
+
+// ═══ PROTOCOL SPEC ═══
+function renderProtocol() {
+  document.getElementById('protocolSpec').innerHTML = `
+<span class="cm">// FallMesh Protocol Envelope v1.0</span>
+<span class="kw">interface</span> MeshEnvelope {
+  <span class="kw">version</span>: <span class="str">"1.0"</span>;
+  <span class="kw">nodeId</span>:  <span class="str">string</span>;        <span class="cm">// prime-spine address</span>
+  <span class="kw">type</span>:    <span class="str">"discovery"</span> | <span class="str">"capability"</span> | <span class="str">"data"</span> | <span class="str">"heartbeat"</span>;
+  <span class="kw">origin</span>:  <span class="str">string</span>;        <span class="cm">// GitHub Pages URL</span>
+  <span class="kw">ts</span>:      <span class="num">number</span>;        <span class="cm">// Unix ms timestamp</span>
+  <span class="kw">payload</span>: <span class="str">object</span>;
+  <span class="kw">sig</span>:     <span class="str">string</span>;        <span class="cm">// HMAC-SHA256 (node secret)</span>
+}
+
+<span class="cm">// Node Capability Advertisement</span>
+<span class="kw">interface</span> NodeCapability {
+  <span class="kw">name</span>:      <span class="str">string</span>;
+  <span class="kw">prime</span>:     <span class="num">number</span>;      <span class="cm">// prime-spine ID</span>
+  <span class="kw">type</span>:      <span class="str">"hub"</span> | <span class="str">"product"</span> | <span class="str">"agents"</span> | <span class="str">"orchestrator"</span>;
+  <span class="kw">url</span>:       <span class="str">string</span>;      <span class="cm">// GitHub Pages deployment</span>
+  <span class="kw">version</span>:   <span class="str">string</span>;
+  <span class="kw">feeds</span>:     <span class="str">string[]</span>;   <span class="cm">// node IDs this node sends data to</span>
+  <span class="kw">accepts</span>:   <span class="str">string[]</span>;   <span class="cm">// node IDs this node receives from</span>
+  <span class="kw">engines</span>:   <span class="str">string[]</span>;   <span class="cm">// AI engines supported</span>
+  <span class="kw">sovereign</span>: <span class="kw">true</span>;        <span class="cm">// always true — single-file HTML</span>
+  <span class="kw">storage</span>:   <span class="str">"indexeddb"</span>; <span class="cm">// always IndexedDB</span>
+}
+
+<span class="cm">// Discovery via Static Manifest</span>
+<span class="cm">// Each repo publishes: /mesh.json</span>
+<span class="kw">interface</span> MeshManifest {
+  <span class="kw">mesh</span>:    <span class="str">"fallmesh"</span>;
+  <span class="kw">version</span>: <span class="str">"1.0"</span>;
+  <span class="kw">hub</span>:     <span class="str">string</span>;      <span class="cm">// hub URL</span>
+  <span class="kw">nodes</span>:   NodeCapability[];
+  <span class="kw">updated</span>: <span class="str">string</span>;      <span class="cm">// ISO timestamp</span>
+}
+
+<span class="cm">// Communication Channels (zero-server)</span>
+<span class="cm">// Same-origin:  BroadcastChannel('fallmesh')</span>
+<span class="cm">// Cross-tab:    localStorage events + polling</span>
+<span class="cm">// Cross-origin: URL fragment + postMessage</span>
+<span class="cm">// Persistence:  IndexedDB per node</span>
+`;
+}
+
+// ═══ DATA FLOWS TABLE ═══
+function renderFlows() {
+  const tbl = document.getElementById('flowTable');
+  let html = '<tr><th>From</th><th></th><th>To</th><th>Data</th></tr>';
+  DATA_FLOWS.forEach(f => {
+    const arrow = f.direction === 'both' ? '⇄' : '→';
+    html += `<tr><td>${f.from}</td><td class="arrow">${arrow}</td><td>${f.to}</td><td>${f.data}</td></tr>`;
+  });
+  tbl.innerHTML = html;
+}
+
+// ═══ HEALTH DASHBOARD ═══
+function renderHealth() {
+  const deployed = MESH_NODES.filter(n => n.url).length;
+  const building = MESH_NODES.filter(n => !n.url).length;
+  const totalEdges = edges.filter(e => !e.weak).length;
+
+  document.getElementById('healthGrid').innerHTML = `
+    <div class="h-card"><div class="h-val">${MESH_NODES.length}</div><div class="h-label">Total Nodes</div></div>
+    <div class="h-card"><div class="h-val" style="color:var(--gn)">${deployed}</div><div class="h-label">Deployed</div></div>
+    <div class="h-card"><div class="h-val" style="color:var(--am)">${building}</div><div class="h-label">Building</div></div>
+    <div class="h-card"><div class="h-val">${totalEdges}</div><div class="h-label">Active Edges</div></div>
+    <div class="h-card"><div class="h-val">£0</div><div class="h-label">Monthly Cost</div></div>
+    <div class="h-card"><div class="h-val">∞</div><div class="h-label">Scale Ceiling</div></div>
+  `;
+
+  // Availability grid
+  const avail = document.getElementById('availGrid');
+  avail.innerHTML = '';
+  MESH_NODES.forEach(n => {
+    const card = document.createElement('div');
+    card.className = 'node';
+    const online = !!n.url;
+    card.innerHTML = `
+      <div class="n-name">${n.name}</div>
+      <div class="n-status ${online?'online':'pending'}"><span class="pulse"></span>${online?'online':'pending'}</div>
+    `;
+    avail.appendChild(card);
+  });
+}
+
+// ═══ TAB SWITCHING ═══
+function switchTab(el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('tab-' + el.dataset.tab).classList.add('on');
+}
+
+// ═══ CONFIG / INDEXEDDB ═══
+let db;
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('FallMesh', 1);
+    req.onupgradeneeded = e => {
+      const d = e.target.result;
+      if(!d.objectStoreNames.contains('keys')) d.createObjectStore('keys');
+      if(!d.objectStoreNames.contains('config')) d.createObjectStore('config');
+      if(!d.objectStoreNames.contains('state')) d.createObjectStore('state');
+    };
+    req.onsuccess = e => { db = e.target.result; resolve(db); };
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function saveKey() {
+  const prov = document.getElementById('cfgProvider').value;
+  const key = document.getElementById('cfgKey').value.trim();
+  if(!key) return;
+  await openDB();
+  const tx = db.transaction('keys','readwrite');
+  tx.objectStore('keys').put(key, prov);
+  document.getElementById('cfgKey').value = '';
+  document.getElementById('keyStatus').textContent = `✓ ${prov} key saved locally`;
+  document.getElementById('keyStatus').style.color = 'var(--gn)';
+}
+
+async function saveCfg() {
+  const cfg = {
+    name: document.getElementById('cfgName').value,
+    role: document.getElementById('cfgRole').value,
+    domain: document.getElementById('cfgDomain').value,
+    refresh: document.getElementById('cfgRefresh').value,
+    layout: document.getElementById('cfgLayout').value,
+  };
+  await openDB();
+  const tx = db.transaction('config','readwrite');
+  tx.objectStore('config').put(cfg, 'main');
+}
+
+async function loadCfg() {
+  try {
+    await openDB();
+    const tx = db.transaction('config','readonly');
+    const req = tx.objectStore('config').get('main');
+    req.onsuccess = () => {
+      const cfg = req.result;
+      if(cfg) {
+        if(cfg.name) document.getElementById('cfgName').value = cfg.name;
+        if(cfg.role) document.getElementById('cfgRole').value = cfg.role;
+        if(cfg.domain) document.getElementById('cfgDomain').value = cfg.domain;
+        if(cfg.refresh) document.getElementById('cfgRefresh').value = cfg.refresh;
+        if(cfg.layout) {
+          document.getElementById('cfgLayout').value = cfg.layout;
+          setLayout(cfg.layout);
+        }
+      }
+    };
+  } catch(e) {}
+}
+
+function exportMesh() {
+  const state = {
+    nodes: MESH_NODES.map(n => ({id:n.id,name:n.name,type:n.type,prime:n.prime,url:n.url})),
+    flows: DATA_FLOWS,
+    exported: new Date().toISOString(),
+    version: '1.0'
+  };
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'fallmesh-state.json';
+  a.click();
+}
+
+function importMesh() {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = '.json';
+  inp.onchange = e => {
+    const f = e.target.files[0];
+    if(!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const state = JSON.parse(r.result);
+        console.log('Imported mesh state:', state);
+        alert('Mesh state imported: ' + state.nodes.length + ' nodes');
+      } catch(err) { alert('Invalid mesh state file'); }
+    };
+    r.readAsText(f);
+  };
+  inp.click();
+}
+
+function resetMesh() {
+  if(confirm('Reset all FallMesh data? This clears saved keys and config.')) {
+    indexedDB.deleteDatabase('FallMesh');
+    location.reload();
+  }
+}
+
+// ═══ INIT ═══
+window.addEventListener('resize', resize);
+resize();
+renderNodes();
+renderProtocol();
+renderFlows();
+renderHealth();
+loadCfg();
+render();
+</script>
+</body>
+</html>
