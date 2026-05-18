@@ -1,0 +1,107 @@
+{
+  "mesh": "fallmesh",
+  "version": "1.0",
+  "hub": "https://sjgant80-hub.github.io/ai-nativesolutions/",
+  "updated": "2026-05-18T00:00:00Z",
+  "nodes": [
+    {
+      "id": "hub",
+      "name": "AI Native Solutions",
+      "type": "hub",
+      "prime": 1,
+      "url": "https://sjgant80-hub.github.io/ai-nativesolutions/",
+      "sovereign": true,
+      "storage": "indexeddb"
+    },
+    {
+      "id": "fallcall",
+      "name": "FallCall",
+      "type": "product",
+      "prime": 2,
+      "url": "https://sjgant80-hub.github.io/fallcall/",
+      "sovereign": true,
+      "storage": "indexeddb"
+    },
+    {
+      "id": "falllearn",
+      "name": "FallLearn",
+      "type": "product",
+      "prime": 7,
+      "url": "https://sjgant80-hub.github.io/falllearn/",
+      "sovereign": true,
+      "storage": "indexeddb"
+    },
+    {
+      "id": "fallgrade",
+      "name": "FallGrade",
+      "type": "product",
+      "prime": 11,
+      "url": "https://sjgant80-hub.github.io/fallgrade/",
+      "sovereign": true,
+      "storage": "indexeddb"
+    },
+    {
+      "id": "fallconsensus",
+      "name": "FallConsensus",
+      "type": "product",
+      "prime": 13,
+      "url": "https://sjgant80-hub.github.io/fallconsensus/",
+      "sovereign": true,
+      "storage": "indexeddb"
+    },
+    {
+      "id": "fallsignal",
+      "name": "FallSignal",
+      "type": "product",
+      "prime": 17,
+      "url": "https://sjgant80-hub.github.io/fallsignal/",
+      "sovereign": true,
+      "storage": "indexeddb"
+    },
+    {
+      "id": "fallforensics",
+      "name": "FallForensics",
+      "type": "product",
+      "prime": 19,
+      "url": "https://sjgant80-hub.github.io/fallforensics/",
+      "sovereign": true,
+      "storage": "indexeddb"
+    },
+    {
+      "id": "oracleengine",
+      "name": "OracleEngine",
+      "type": "product",
+      "prime": 23,
+      "url": "https://sjgant80-hub.github.io/oracleengine/",
+      "sovereign": true,
+      "storage": "indexeddb"
+    },
+    {
+      "id": "falllead",
+      "name": "FallLead",
+      "type": "product",
+      "prime": 29,
+      "url": "https://sjgant80-hub.github.io/falllead/",
+      "sovereign": true,
+      "storage": "indexeddb"
+    },
+    {
+      "id": "fall127",
+      "name": "Fall127",
+      "type": "product",
+      "prime": 31,
+      "url": "https://sjgant80-hub.github.io/fall127agents/",
+      "sovereign": true,
+      "storage": "indexeddb"
+    },
+    {
+      "id": "fallmesh",
+      "name": "FallMesh",
+      "type": "hub",
+      "prime": 47,
+      "url": "https://sjgant80-hub.github.io/fallmesh/",
+      "sovereign": true,
+      "storage": "indexeddb"
+    }
+  ]
+}
