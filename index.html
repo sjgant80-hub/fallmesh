@@ -147,6 +147,7 @@ a:hover{text-decoration:underline}
 <span><span class="dot" style="background:var(--bl)"></span> product</span>
 <span><span class="dot" style="background:var(--cy)"></span> agent pool</span>
 <span><span class="dot" style="background:var(--am)"></span> orchestrator</span>
+<span><span class="dot" style="background:#8b5cf6"></span> trilogy</span>
 </div>
 </div>
 
@@ -378,6 +379,37 @@ const MESH_NODES = [
   { id:'fallmesh', name:'FallMesh', type:'hub', prime:47, color:'#00d4aa',
     url:'', desc:'This. The mesh protocol itself. Connects all nodes.',
     feeds:['all'], fedBy:['all'] },
+
+  // ═══ TRILOGY AI PIPELINE ═══
+  { id:'docmind', name:'DocMind API', type:'trilogy', prime:53, color:'#06b6d4',
+    url:'https://sjgant80-hub.github.io/docmind-api/',
+    desc:'Document parsing engine. OCR, receipts, invoices, contracts → structured data.',
+    feeds:['trilogysdk','trilogyfw','fallcall','fallforensics'], fedBy:['trilogysdk'] },
+
+  { id:'deepapi', name:'Deep API', type:'trilogy', prime:59, color:'#8b5cf6',
+    url:'https://sjgant80-hub.github.io/deep-api/',
+    desc:'Deep research engine. Multi-step reasoning, citation graphs, knowledge synthesis.',
+    feeds:['trilogysdk','trilogyfw','oracleengine','fallsignal'], fedBy:['trilogysdk'] },
+
+  { id:'fluxapi', name:'Flux API', type:'trilogy', prime:61, color:'#f97316',
+    url:'https://sjgant80-hub.github.io/flux-api/',
+    desc:'Content generation engine. Blog posts, threads, emails, reports from any input.',
+    feeds:['trilogysdk','trilogyfw','hub','fallcall'], fedBy:['trilogysdk'] },
+
+  { id:'trilogysdk', name:'Trilogy SDK', type:'trilogy', prime:67, color:'#a78bfa',
+    url:'https://sjgant80-hub.github.io/trilogy-sdk/',
+    desc:'Unified API toolkit. DocMind + Deep + Flux. One install, three AI engines.',
+    feeds:['docmind','deepapi','fluxapi','trilogyfw'], fedBy:['trilogyfw','trilogyforge'] },
+
+  { id:'trilogyfw', name:'Trilogy Framework', type:'trilogy', prime:71, color:'#f472b6',
+    url:'https://sjgant80-hub.github.io/trilogy-framework/',
+    desc:'Declarative pipeline engine. Chain Input → Intelligence → Output with presets.',
+    feeds:['trilogysdk','trilogyforge','hub','sididy'], fedBy:['trilogysdk','trilogyforge'] },
+
+  { id:'trilogyforge', name:'Trilogy Forge', type:'trilogy', prime:73, color:'#ef4444',
+    url:'https://sjgant80-hub.github.io/trilogy-forge/',
+    desc:'Psychological build engine. Jungian archetypes, Freudian shadow, 16-dimension tone.',
+    feeds:['trilogyfw','fallcall','hub','sididy'], fedBy:['trilogyfw'] },
 ];
 
 // ═══ DATA FLOWS ═══
@@ -399,6 +431,21 @@ const DATA_FLOWS = [
   { from:'sididy', to:'ainative127', data:'Orchestration commands', direction:'out' },
   { from:'sididy', to:'sididy127', data:'Personal directives', direction:'out' },
   { from:'fallmesh', to:'all', data:'Mesh topology, discovery', direction:'both' },
+
+  // Trilogy pipeline flows
+  { from:'docmind', to:'deepapi', data:'Parsed documents → research input', direction:'out' },
+  { from:'deepapi', to:'fluxapi', data:'Research output → content generation', direction:'out' },
+  { from:'trilogysdk', to:'docmind', data:'API orchestration', direction:'both' },
+  { from:'trilogysdk', to:'deepapi', data:'API orchestration', direction:'both' },
+  { from:'trilogysdk', to:'fluxapi', data:'API orchestration', direction:'both' },
+  { from:'trilogyfw', to:'trilogysdk', data:'Pipeline execution → SDK calls', direction:'out' },
+  { from:'trilogyforge', to:'trilogyfw', data:'Psychology-calibrated configs', direction:'out' },
+  { from:'docmind', to:'fallcall', data:'Document parsing for call prep', direction:'out' },
+  { from:'deepapi', to:'oracleengine', data:'Deep research → pattern recognition', direction:'out' },
+  { from:'fluxapi', to:'hub', data:'Generated content → hub pages', direction:'out' },
+  { from:'trilogyforge', to:'fallcall', data:'Buyer psychology → sales calls', direction:'out' },
+  { from:'trilogyforge', to:'sididy', data:'Archetype + shadow analysis', direction:'out' },
+  { from:'trilogyfw', to:'sididy', data:'Pipeline orchestration', direction:'out' },
 ];
 
 // ═══ MESH CANVAS ═══
@@ -415,7 +462,7 @@ const nodes = MESH_NODES.map((n,i) => ({
   ...n,
   x: 0, y: 0, vx: 0, vy: 0,
   tx: 0, ty: 0,
-  r: n.type==='hub'?16 : n.type==='orchestrator'?14 : n.type==='agents'?12 : 10
+  r: n.type==='hub'?16 : n.type==='orchestrator'?14 : n.type==='agents'?12 : n.type==='trilogy'?11 : 10
 }));
 
 const edges = [];
@@ -678,7 +725,7 @@ function renderProtocol() {
 <span class="kw">interface</span> NodeCapability {
   <span class="kw">name</span>:      <span class="str">string</span>;
   <span class="kw">prime</span>:     <span class="num">number</span>;      <span class="cm">// prime-spine ID</span>
-  <span class="kw">type</span>:      <span class="str">"hub"</span> | <span class="str">"product"</span> | <span class="str">"agents"</span> | <span class="str">"orchestrator"</span>;
+  <span class="kw">type</span>:      <span class="str">"hub"</span> | <span class="str">"product"</span> | <span class="str">"agents"</span> | <span class="str">"orchestrator"</span> | <span class="str">"trilogy"</span>;
   <span class="kw">url</span>:       <span class="str">string</span>;      <span class="cm">// GitHub Pages deployment</span>
   <span class="kw">version</span>:   <span class="str">string</span>;
   <span class="kw">feeds</span>:     <span class="str">string[]</span>;   <span class="cm">// node IDs this node sends data to</span>

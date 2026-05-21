@@ -102,6 +102,60 @@
       "url": "https://sjgant80-hub.github.io/fallmesh/",
       "sovereign": true,
       "storage": "indexeddb"
+    },
+    {
+      "id": "docmind",
+      "name": "DocMind API",
+      "type": "trilogy",
+      "prime": 53,
+      "url": "https://sjgant80-hub.github.io/docmind-api/",
+      "sovereign": false,
+      "storage": "api"
+    },
+    {
+      "id": "deepapi",
+      "name": "Deep API",
+      "type": "trilogy",
+      "prime": 59,
+      "url": "https://sjgant80-hub.github.io/deep-api/",
+      "sovereign": false,
+      "storage": "api"
+    },
+    {
+      "id": "fluxapi",
+      "name": "Flux API",
+      "type": "trilogy",
+      "prime": 61,
+      "url": "https://sjgant80-hub.github.io/flux-api/",
+      "sovereign": false,
+      "storage": "api"
+    },
+    {
+      "id": "trilogysdk",
+      "name": "Trilogy SDK",
+      "type": "trilogy",
+      "prime": 67,
+      "url": "https://sjgant80-hub.github.io/trilogy-sdk/",
+      "sovereign": false,
+      "storage": "api"
+    },
+    {
+      "id": "trilogyfw",
+      "name": "Trilogy Framework",
+      "type": "trilogy",
+      "prime": 71,
+      "url": "https://sjgant80-hub.github.io/trilogy-framework/",
+      "sovereign": false,
+      "storage": "api"
+    },
+    {
+      "id": "trilogyforge",
+      "name": "Trilogy Forge",
+      "type": "trilogy",
+      "prime": 73,
+      "url": "https://sjgant80-hub.github.io/trilogy-forge/",
+      "sovereign": false,
+      "storage": "api"
     }
   ]
 }
