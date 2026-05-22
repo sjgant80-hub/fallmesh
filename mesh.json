@@ -282,6 +282,15 @@
       "url": "https://sjgant80-hub.github.io/si-didy/",
       "sovereign": true,
       "storage": "localstorage"
+    },
+    {
+      "id": "datascope",
+      "name": "DataScope",
+      "type": "product",
+      "prime": 151,
+      "url": "https://sjgant80-hub.github.io/datascope/",
+      "sovereign": true,
+      "storage": "localstorage"
     }
   ]
 }
