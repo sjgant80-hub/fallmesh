@@ -264,6 +264,15 @@
       "url": "https://github.com/sjgant80-hub/fallsalescrm",
       "sovereign": true,
       "storage": "indexeddb"
+    },
+    {
+      "id": "fallconcierge",
+      "name": "FallConcierge",
+      "type": "product",
+      "prime": 139,
+      "url": "https://sjgant80-hub.github.io/fallconcierge/",
+      "sovereign": true,
+      "storage": "indexeddb"
     }
   ]
 }
