@@ -273,6 +273,15 @@
       "url": "https://sjgant80-hub.github.io/fallconcierge/",
       "sovereign": true,
       "storage": "indexeddb"
+    },
+    {
+      "id": "sididy",
+      "name": "si-didy",
+      "type": "product",
+      "prime": 149,
+      "url": "https://sjgant80-hub.github.io/si-didy/",
+      "sovereign": true,
+      "storage": "localstorage"
     }
   ]
 }
