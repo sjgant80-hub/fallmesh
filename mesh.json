@@ -165,6 +165,15 @@
       "url": "https://sjgant80-hub.github.io/fallcube-api/",
       "sovereign": false,
       "storage": "api"
+    },
+    {
+      "id": "fallscout",
+      "name": "FallScout",
+      "type": "product",
+      "prime": 83,
+      "url": "https://sjgant80-hub.github.io/fallscout/",
+      "sovereign": true,
+      "storage": "indexeddb"
     }
   ]
 }

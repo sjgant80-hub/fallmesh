@@ -418,6 +418,11 @@ const MESH_NODES = [
     url:'https://sjgant80-hub.github.io/fallcube-api/',
     desc:'Sovereign file storage API. Upload, search, tag, analyze, stream. The storage spine.',
     feeds:['trilogysdk','trilogyfw','hub','sididy'], fedBy:['docmind','deepapi','fluxapi','trilogyfw'] },
+
+  { id:'fallscout', name:'FallScout', type:'product', prime:83, color:'#3a8aff',
+    url:'https://sjgant80-hub.github.io/fallscout/',
+    desc:'Sales pipeline intelligence. Prospect research, lead scoring, deal tracking.',
+    feeds:['falllead','fallcall','sididy'], fedBy:['falllead','fallcall'] },
 ];
 
 // ═══ DATA FLOWS ═══
@@ -455,6 +460,10 @@ const DATA_FLOWS = [
   { from:'trilogyforge', to:'sididy', data:'Archetype + shadow analysis', direction:'out' },
   { from:'trilogyfw', to:'sididy', data:'Pipeline orchestration', direction:'out' },
   { from:'fallcube', to:'trilogyfw', data:'Stored files → pipeline input', direction:'both' },
+
+  // FallScout sales pipeline flows
+  { from:'falllead', to:'fallscout', data:'Qualified leads → prospect research', direction:'out' },
+  { from:'fallscout', to:'fallcall', data:'Scout intelligence → call prep', direction:'out' },
 ];
 
 // ═══ MESH CANVAS ═══
