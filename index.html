@@ -450,9 +450,17 @@ const MESH_NODES = [
   // ═══ FALLREACH · prime 107 · sovereign AI SDR ═══
   { id:'fallreach', name:'FallReach', type:'product', prime:107, color:'#10b981',
     url:'https://sjgant80-hub.github.io/fallreach/',
-    desc:'Sovereign AI SDR. Lead scoring, outbound drafting, reply simulation, approval gates. Single HTML file. BYO LLM. Leads never leave the device.',
+    desc:'Sovereign AI SDR. Lead scoring, outbound drafting, reply simulation, approval gates. Single HTML file. BYO LLM. Leads never leave the device. v1.1 wires konomi-swarm.',
     feeds:['fallforce','sididy'],
-    fedBy:['fallscout','fallconcierge','falllead'] },
+    fedBy:['fallscout','fallconcierge','falllead','konomiswarm'] },
+
+  // ═══ KONOMI-SWARM · prime 109 · the colony primitive ═══
+  // shape · κ₂.thomas (swarm-mind) · build · κ₀.simon
+  { id:'konomiswarm', name:'konomi-swarm', type:'trilogy', prime:109, color:'#8b5cf6',
+    url:'https://sjgant80-hub.github.io/konomi-swarm/',
+    desc:'The colony primitive. Every approve is a pheromone deposit. Sovereign JS module, ~10 KB. Drops into any tool with a binary outcome loop. Shape from κ₂.thomas swarm-mind, build by κ₀.simon.',
+    feeds:['fallreach','sididy','fallbrief','fallgrade','falllead'],
+    fedBy:['simon','thomas'] },
 ];
 
 // ═══ DATA FLOWS ═══
@@ -519,6 +527,12 @@ const DATA_FLOWS = [
   { from:'falllead', to:'fallreach', data:'Qualified leads → reach inbox', direction:'out' },
   { from:'fallreach', to:'fallforce', data:'Approved outbound → CRM activity', direction:'out' },
   { from:'fallreach', to:'sididy', data:'Drafted messages → twin voice audit', direction:'out' },
+
+  // konomi-swarm flows — the colony primitive · prime 109
+  { from:'konomiswarm', to:'fallreach', data:'Colony memory · pheromone priors for β draft', direction:'out' },
+  { from:'fallreach', to:'konomiswarm', data:'approve/reject → pheromone deposit', direction:'out' },
+  { from:'konomiswarm', to:'sididy', data:'Reply-pattern colony · what survives in your voice', direction:'out' },
+  { from:'konomiswarm', to:'fallbrief', data:'Weave colony · which arguments won', direction:'out' },
 ];
 
 // ═══ MESH CANVAS ═══
