@@ -430,6 +430,22 @@ const MESH_NODES = [
     desc:'Upload anything — HTML, ZIP (Replit/Lovable/Next/Vite/CRA/Vue/Svelte), .md spec. Get back sovereign single-file. The torus that eats the old web.',
     feeds:['hub','sididy','fallforce','falloffice','falllearn','fallmesh'],
     fedBy:['trilogyfw','trilogyforge'] },
+
+  // ═══ NEW REGISTRATIONS — mesh ripple sweep ═══
+  { id:'falllead', name:'FallLead', type:'product', prime:97, color:'#3a8aff',
+    url:'https://sjgant80-hub.github.io/falllead/',
+    desc:'IFA Lead Intelligence. Qualification scoring, pipeline tracking, opportunity sizing.',
+    feeds:['fallscout','fallcall','sididy'], fedBy:['fallforce'] },
+
+  { id:'datascope', name:'DataScope', type:'agents', prime:101, color:'#00ccee',
+    url:'https://sjgant80-hub.github.io/datascope/',
+    desc:'AI Intelligence for Creators & Investors. Trend monitoring, market intel, signal detection across seven use cases.',
+    feeds:['fallsignal','fallwatch','sididy'], fedBy:['deepapi'] },
+
+  { id:'fallconcierge', name:'FallConcierge', type:'product', prime:103, color:'#3a8aff',
+    url:'https://sjgant80-hub.github.io/fallconcierge/',
+    desc:'Sovereign AI Concierge with psychological profiling. Conversational layer for visitor → qualified lead.',
+    feeds:['fallcall','sididy','fallforce'], fedBy:['trilogyforge'] },
 ];
 
 // ═══ DATA FLOWS ═══
@@ -478,6 +494,17 @@ const DATA_FLOWS = [
   { from:'forgeupgrade', to:'hub', data:'Sovereign tools harvested from the old web', direction:'out' },
   { from:'forgeupgrade', to:'fallmesh', data:'Newly sovereign tools → mesh registry', direction:'out' },
   { from:'forgeupgrade', to:'sididy', data:'Upgrade events → orchestrator signal', direction:'out' },
+
+  // New registrations — ripple sweep
+  { from:'fallforce', to:'falllead', data:'Active deals → lead context', direction:'out' },
+  { from:'falllead', to:'fallcall', data:'Qualified leads → call prep', direction:'out' },
+  { from:'falllead', to:'fallscout', data:'Lead intelligence → scout research', direction:'out' },
+  { from:'deepapi', to:'datascope', data:'Research synthesis → intelligence panels', direction:'out' },
+  { from:'datascope', to:'fallsignal', data:'Detected signals → news filter', direction:'out' },
+  { from:'datascope', to:'sididy', data:'Market intel → orchestrator', direction:'out' },
+  { from:'trilogyforge', to:'fallconcierge', data:'Psychological profile → conversation', direction:'out' },
+  { from:'fallconcierge', to:'fallcall', data:'Visitor profile → call handoff', direction:'out' },
+  { from:'fallconcierge', to:'fallforce', data:'Qualified visitor → CRM lead', direction:'out' },
 ];
 
 // ═══ MESH CANVAS ═══
