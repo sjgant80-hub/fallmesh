@@ -423,6 +423,13 @@ const MESH_NODES = [
     url:'https://sjgant80-hub.github.io/fallscout/',
     desc:'Sales pipeline intelligence. Prospect research, lead scoring, deal tracking.',
     feeds:['falllead','fallcall','sididy'], fedBy:['falllead','fallcall'] },
+
+  // ═══ FORGE UPGRADE — dyad Σ=89 ═══
+  { id:'forgeupgrade', name:'Forge Upgrade', type:'trilogy', prime:89, color:'#10b981',
+    url:'https://sjgant80-hub.github.io/forge-upgrade/',
+    desc:'Upload anything — HTML, ZIP (Replit/Lovable/Next/Vite/CRA/Vue/Svelte), .md spec. Get back sovereign single-file. The torus that eats the old web.',
+    feeds:['hub','sididy','fallforce','falloffice','falllearn','fallmesh'],
+    fedBy:['trilogyfw','trilogyforge'] },
 ];
 
 // ═══ DATA FLOWS ═══
@@ -464,6 +471,13 @@ const DATA_FLOWS = [
   // FallScout sales pipeline flows
   { from:'falllead', to:'fallscout', data:'Qualified leads → prospect research', direction:'out' },
   { from:'fallscout', to:'fallcall', data:'Scout intelligence → call prep', direction:'out' },
+
+  // Forge Upgrade flows — the torus that eats the old web
+  { from:'trilogyforge', to:'forgeupgrade', data:'Psychology configs → upgrade calibration', direction:'out' },
+  { from:'trilogyfw', to:'forgeupgrade', data:'Pipeline primitives → strip + compose', direction:'out' },
+  { from:'forgeupgrade', to:'hub', data:'Sovereign tools harvested from the old web', direction:'out' },
+  { from:'forgeupgrade', to:'fallmesh', data:'Newly sovereign tools → mesh registry', direction:'out' },
+  { from:'forgeupgrade', to:'sididy', data:'Upgrade events → orchestrator signal', direction:'out' },
 ];
 
 // ═══ MESH CANVAS ═══
