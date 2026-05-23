@@ -446,6 +446,13 @@ const MESH_NODES = [
     url:'https://sjgant80-hub.github.io/fallconcierge/',
     desc:'Sovereign AI Concierge with psychological profiling. Conversational layer for visitor → qualified lead.',
     feeds:['fallcall','sididy','fallforce'], fedBy:['trilogyforge'] },
+
+  // ═══ FALLREACH · prime 107 · sovereign AI SDR ═══
+  { id:'fallreach', name:'FallReach', type:'product', prime:107, color:'#10b981',
+    url:'https://sjgant80-hub.github.io/fallreach/',
+    desc:'Sovereign AI SDR. Lead scoring, outbound drafting, reply simulation, approval gates. Single HTML file. BYO LLM. Leads never leave the device.',
+    feeds:['fallforce','sididy'],
+    fedBy:['fallscout','fallconcierge','falllead'] },
 ];
 
 // ═══ DATA FLOWS ═══
@@ -505,6 +512,13 @@ const DATA_FLOWS = [
   { from:'trilogyforge', to:'fallconcierge', data:'Psychological profile → conversation', direction:'out' },
   { from:'fallconcierge', to:'fallcall', data:'Visitor profile → call handoff', direction:'out' },
   { from:'fallconcierge', to:'fallforce', data:'Qualified visitor → CRM lead', direction:'out' },
+
+  // FallReach flows — sovereign AI SDR · prime 107
+  { from:'fallscout', to:'fallreach', data:'Enriched leads → reach inbox', direction:'out' },
+  { from:'fallconcierge', to:'fallreach', data:'Warm visitors → reach inbox', direction:'out' },
+  { from:'falllead', to:'fallreach', data:'Qualified leads → reach inbox', direction:'out' },
+  { from:'fallreach', to:'fallforce', data:'Approved outbound → CRM activity', direction:'out' },
+  { from:'fallreach', to:'sididy', data:'Drafted messages → twin voice audit', direction:'out' },
 ];
 
 // ═══ MESH CANVAS ═══
